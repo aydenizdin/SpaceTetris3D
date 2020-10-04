@@ -19,8 +19,6 @@ public class MainController : MonoBehaviour
     private void Start()
     {
         rotSpace = Space.World;
-
-        gobj = Instantiate(gobj, new Vector3(0, 0, 0), Quaternion.identity);
     }
  
     
