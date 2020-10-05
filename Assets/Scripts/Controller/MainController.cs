@@ -8,9 +8,9 @@ public class MainController : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    public GameObject gobj;
-    
-    
+    [FormerlySerializedAs("gobj")] public GameObject givenSpawned;
+
+    private GivenMover gMoverScriptPart;
     
     private Space rotSpace;
     private float keyDelay = 0.1f;
@@ -19,6 +19,7 @@ public class MainController : MonoBehaviour
     private void Start()
     {
         rotSpace = Space.World;
+        gMoverScriptPart = givenSpawned.GetComponent<GivenMover>();
     }
  
     
@@ -38,35 +39,47 @@ public class MainController : MonoBehaviour
 
       void Update()
     {
+        // release object, testing todo delete
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            gMoverScriptPart.canMove = true;
+        }
+        
+        if (gMoverScriptPart.canMove == false)
+        {
+            return;
+            //spawn new veya GivenMover içerisinde spawnNew Yapılabilir
+        }
         timePassed += Time.deltaTime;
          
         if (Input.GetKey(KeyCode.DownArrow) && Input.GetKey(KeyCode.LeftArrow) && timePassed>=keyDelay)
         {
-            gobj.transform.Translate(-1,-1,0,Space.World);
+            givenSpawned.transform.Translate(-1,-1,0,Space.World);
             timePassed = 0f;
         }
           
         if (Input.GetKey(KeyCode.DownArrow) && timePassed>=keyDelay)
         {
-            gobj.transform.Translate(0,-1,0,Space.World);
+            
+            givenSpawned.transform.Translate(0,-1,0,Space.World);
             timePassed = 0f;
         }
         
         
         if (Input.GetKey(KeyCode.UpArrow)&& timePassed>=keyDelay)
         {
-            gobj.transform.Translate(0,1,0,Space.World);
+            givenSpawned.transform.Translate(0,1,0,Space.World);
             timePassed = 0f;
         }
         
         if (Input.GetKey(KeyCode.RightArrow) && timePassed>=keyDelay)
         {
-            gobj.transform.Translate(1,0,0,Space.World);
+            givenSpawned.transform.Translate(1,0,0,Space.World);
             timePassed = 0f;
         }
         if (Input.GetKey(KeyCode.LeftArrow) && timePassed>=keyDelay)
         {
-              gobj.transform.Translate(-1,0,0,Space.World);
+              givenSpawned.transform.Translate(-1,0,0,Space.World);
              //gobj.transform.position = transform.position + new Vector3(-1, 0, 0);
          
             
@@ -79,20 +92,20 @@ public class MainController : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
-            gobj.transform.Rotate(0, 0, 90, rotSpace);
+            givenSpawned.transform.Rotate(0, 0, 90, rotSpace);
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
-            gobj.transform.Rotate(0,0,-90,rotSpace);
+            givenSpawned.transform.Rotate(0,0,-90,rotSpace);
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            gobj.transform.Rotate(-90,0,0,rotSpace);
+            givenSpawned.transform.Rotate(-90,0,0,rotSpace);
         }
         
         if (Input.GetKeyDown(KeyCode.W))
         {
-            gobj.transform.Rotate(90,0,0,rotSpace);
+            givenSpawned.transform.Rotate(90,0,0,rotSpace);
         }
 
         

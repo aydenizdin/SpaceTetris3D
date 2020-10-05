@@ -13,12 +13,16 @@
           <e p="Controller" t="Include">
             <e p="MainController.cs" t="Include" />
           </e>
+          <e p="Givens" t="Include">
+            <e p="GivenMover.cs" t="Include" />
+          </e>
           <e p="Platform" t="Include">
             <e p="Platform.cs" t="Include" />
             <e p="PlatformDimensions.cs" t="Include" />
             <e p="PlatformDrawer.cs" t="Include" />
           </e>
         </e>
+        <e p="TempBoxCollider.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="Packages" t="ExcludeRecursive" />
