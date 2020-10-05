@@ -7,8 +7,16 @@
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
+          <e p="Configuration" t="Include">
+            <e p="T3DConfiguration.cs" t="Include" />
+          </e>
           <e p="Controller" t="Include">
             <e p="MainController.cs" t="Include" />
+          </e>
+          <e p="Platform" t="Include">
+            <e p="Platform.cs" t="Include" />
+            <e p="PlatformDimensions.cs" t="Include" />
+            <e p="PlatformDrawer.cs" t="Include" />
           </e>
         </e>
       </e>
