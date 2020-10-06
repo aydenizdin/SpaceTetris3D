@@ -130,7 +130,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 258633551}
-  - component: {fileID: 258633550}
   m_Layer: 0
   m_Name: TCube_Parcali_2
   m_TagString: Untagged
@@ -138,19 +137,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &258633550
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 258633548}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bf3a53b250020a49973355a334bfab8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canMove: 1
 --- !u!4 &258633551
 Transform:
   m_ObjectHideFlags: 0
@@ -159,7 +145,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 258633548}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: -1}
+  m_LocalPosition: {x: -1, y: 0, z: 6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2119238956}
@@ -548,7 +534,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: -3.96, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -816,7 +802,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1233285597}
   m_LocalRotation: {x: 0, y: -0.5940509, z: 0, w: 0.8044275}
-  m_LocalPosition: {x: 5.47, y: 0, z: -1.4}
+  m_LocalPosition: {x: 5.47, y: 0, z: -3.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1409,7 +1395,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1799643777}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1643149720}
@@ -1447,6 +1433,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bf3a53b250020a49973355a334bfab8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waitBeforeMoveTime: 1
+  lastTimeRun: 0
   canMove: 1
 --- !u!1 &1869642435
 GameObject:

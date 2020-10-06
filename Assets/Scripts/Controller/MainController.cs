@@ -35,15 +35,25 @@ public class MainController : MonoBehaviour
         }
     }
 
+    // todo deletei
     
 
-      void Update()
+    void Update()
     {
         // release object, testing todo delete
         if (Input.GetKeyDown(KeyCode.R))
         {
             gMoverScriptPart.canMove = true;
         }
+        
+        // release object, testing todo delete
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            gMoverScriptPart.canMove = true;
+            givenSpawned.transform.position=new Vector3(0,0,0);
+        }
+        
+       
         
         if (gMoverScriptPart.canMove == false)
         {
