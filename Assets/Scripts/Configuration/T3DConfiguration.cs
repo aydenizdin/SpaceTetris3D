@@ -4,6 +4,6 @@ using UnityEngine;
 
 public   class T3DConfiguration :MonoBehaviour
 {
-    public  float OneUnit = 0.0f;
+    public  float OneUnit = 1.0f;
 
 }
