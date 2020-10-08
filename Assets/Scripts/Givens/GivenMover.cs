@@ -190,52 +190,137 @@ public class GivenMover : MonoBehaviour
          
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
          myRay.origin = c.transform.position;
-         myRay.direction = Vector3.left;
-          hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
          myRay.direction = Vector3.down;
-          hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
+         
+         RaycastHit hitInfo = new RaycastHit();
+         
+         hit = Physics.Raycast(myRay,out hitInfo,1.0f,MovementControlLayerMaskValue);
+         
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
+
+            Vector3 AB = c.transform.position - this.transform.position;
             
+            // var collidersClosestToMainorigin = hitInfo.collider.ClosestPoint(this.transform.position);
+            var collidersClosestToMainorigin = hitInfo.collider.transform.position;
+            
+            
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AC,AB);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            if (crossResult.z < 0.000001f)
+            {
+               
+               return;   
+            }
+              
          }
          
-         myRay.direction = Vector3.up;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         myRay.direction = Vector3.left;
+         
+         RaycastHit hitInfo2 = new RaycastHit();
+         
+         hit = Physics.Raycast(myRay,out hitInfo2,1.0f,MovementControlLayerMaskValue);
+         
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
+
+            Vector3 AB = c.transform.position - this.transform.position;
             
+            // var collidersClosestToMainorigin = hitInfo2.collider.ClosestPoint(this.transform.position);
+
+            var collidersClosestToMainorigin = hitInfo2.collider.transform.position;
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AC,AB);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            if (crossResult.z < 0.000001f)
+            {
+               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+               return;   
+            }
+              
          }
+         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
          myRay.direction = Vector3.right;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
+         
+         RaycastHit hitInfo3 = new RaycastHit();
+         Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+         
+         hit = Physics.Raycast(myRay,out hitInfo3,1.0f,MovementControlLayerMaskValue);
+         
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
+
+            Vector3 AB = c.transform.position - this.transform.position;
             
+            //var collidersClosestToMainorigin = hitInfo3.collider.ClosestPoint(this.transform.position);
+            var collidersClosestToMainorigin = hitInfo3.collider.transform.position;
+
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AC,AB);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            if (crossResult.z < 0.000001f)
+            {
+               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+               return;   
+            }
+              
          }
          
-                  
-
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          myRay.direction = Vector3.up;
          
+         RaycastHit hitInfo4 = new RaycastHit();
+         
+         hit = Physics.Raycast(myRay,out hitInfo4,1.0f,MovementControlLayerMaskValue);
+         
+         if (hit)
+         {
+
+            Vector3 AB = c.transform.position - this.transform.position;
+            
+            // var collidersClosestToMainorigin = hitInfo4.collider.ClosestPoint(this.transform.position);
+            var collidersClosestToMainorigin = hitInfo4.collider.transform.position;
+
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AC,AB);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            
+            
+            if (crossResult.z < 0.000001f)
+            {
+               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+               return;   
+            }
+              
+         }
+         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          
       }
       
       transform.Rotate(0, 0, 90, rotSpace);
    }
+
    
    private void RotateRight()
    {
@@ -246,56 +331,135 @@ public class GivenMover : MonoBehaviour
          
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
          myRay.origin = c.transform.position;
-         
-         
-         myRay.direction = Vector3.right;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
          myRay.direction = Vector3.down;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
+         
+         RaycastHit hitInfo = new RaycastHit();
+         
+         hit = Physics.Raycast(myRay,out hitInfo,1.0f,MovementControlLayerMaskValue);
+         
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-         
-            
-         myRay.direction = Vector3.up;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
 
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
+            Vector3 AB = c.transform.position - this.transform.position;
             
+            // var collidersClosestToMainorigin = hitInfo.collider.ClosestPoint(this.transform.position);
+            var collidersClosestToMainorigin = hitInfo.collider.transform.position;
+            
+            
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AB,AC);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            if (crossResult.z < 0.000001f)
+            {
+               
+               return;   
+            }
+              
          }
          
-         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
          myRay.direction = Vector3.left;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
+         
+         RaycastHit hitInfo2 = new RaycastHit();
+         
+         hit = Physics.Raycast(myRay,out hitInfo2,1.0f,MovementControlLayerMaskValue);
+         
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
+
+            Vector3 AB = c.transform.position - this.transform.position;
             
+            // var collidersClosestToMainorigin = hitInfo2.collider.ClosestPoint(this.transform.position);
+
+            var collidersClosestToMainorigin = hitInfo2.collider.transform.position;
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AB,AC);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            if (crossResult.z < 0.000001f)
+            {
+               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+               return;   
+            }
+              
          }
          
-            
-
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         myRay.direction = Vector3.right;
          
+         RaycastHit hitInfo3 = new RaycastHit();
+         Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+         
+         hit = Physics.Raycast(myRay,out hitInfo3,1.0f,MovementControlLayerMaskValue);
+         
+         if (hit)
+         {
+
+            Vector3 AB = c.transform.position - this.transform.position;
+            
+            //var collidersClosestToMainorigin = hitInfo3.collider.ClosestPoint(this.transform.position);
+            var collidersClosestToMainorigin = hitInfo3.collider.transform.position;
+
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AB,AC);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            if (crossResult.z < 0.000001f)
+            {
+               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+               return;   
+            }
+              
+         }
+         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          myRay.direction = Vector3.up;
+         
+         RaycastHit hitInfo4 = new RaycastHit();
+         
+         hit = Physics.Raycast(myRay,out hitInfo4,1.0f,MovementControlLayerMaskValue);
+         
+         if (hit)
+         {
+
+            Vector3 AB = c.transform.position - this.transform.position;
+            
+            // var collidersClosestToMainorigin = hitInfo4.collider.ClosestPoint(this.transform.position);
+            var collidersClosestToMainorigin = hitInfo4.collider.transform.position;
+
+            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
+
+            Vector3 crossResult = Vector3.Cross(AB,AC);
+
+            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
+            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
+            
+            
+            
+            if (crossResult.z < 0.000001f)
+            {
+               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+               return;   
+            }
+              
+         }
+         
+         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          
       }
       
-      transform.Rotate(0, 0, 90, rotSpace);
+      transform.Rotate(0, 0, -90, rotSpace);
    }
    
    private void RotateForward()
