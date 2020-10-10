@@ -2,14 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using JetBrains.Annotations;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+public class RotationAndPosition
+{
+   public Quaternion Rot { get; set; }
+   public Vector3 Pos { get; set; }
+}
 public class GivenMover : MonoBehaviour
 {
-   public GameObject[] Cubes;
+   [CanBeNull] public GameObject[] Cubes;
 
-   private Collider[] ChildrenColliders={};
+   [CanBeNull] private Collider[] ChildrenColliders;
 
    private float waitBeforeMoveTime = 1.0f;
    private float lastTimeRun = 0.0f;
@@ -18,10 +25,37 @@ public class GivenMover : MonoBehaviour
    private Ray myRay;
    public bool canMove = true;
 
+   private RotationAndPosition LastSecureRotPost { get; set; }
+   
    private int MovementControlLayerMaskValue;
+
+   //private Action drawContsForRotatingRight;
+
+
+   public void Awake()
+   {
+      LastSecureRotPost = new RotationAndPosition()
+      {
+         Pos = transform.position,
+         Rot = transform.rotation
+      };
+   }
 
    public void Start()
    {
+      
+      Debug.Log("this.name:"+this.name);
+
+      // if (name == "TCube_Parcali")
+      // {
+      //    drawContsForRotatingRight = drawContsFor_T_CubeRotateRight;
+      // }
+      // else if (name == "LCube_Parcali")
+      // {
+      //    drawContsForRotatingRight = drawContsFor_L_CubeRotateRight;
+      // }
+      //
+      //
       rotSpace = Space.World;
       childrenCount = Cubes.Length;
       RayForwardMoveControl = new Ray();
@@ -57,6 +91,14 @@ public class GivenMover : MonoBehaviour
          rotSpace = Space.Self;
       }
    }
+
+   private void SetRotPosToTheLastSecure()
+   {
+      transform.rotation = LastSecureRotPost.Rot;
+      transform.position = LastSecureRotPost.Pos;
+   }
+
+  
 
    // spawner olarak MainController kullanılacak
    // MainController: given object spawn edecek
@@ -180,449 +222,136 @@ public class GivenMover : MonoBehaviour
       
       transform.Translate(1,0,0,Space.World);
    }
+
+    
    
-   private void RotateLeft()
+   private Vector3 rotLeftVector = new Vector3(0,0,90.0f);
+   
+    
+   private void RotateLeftByControlEach()
    {
-      bool hit;
-      for (int cindex = 0; cindex < childrenCount; cindex++)
-      {
-         Collider c = ChildrenColliders[cindex];
-         
-         //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         myRay.direction = Vector3.down;
-         
-         RaycastHit hitInfo = new RaycastHit();
-         
-         hit = Physics.Raycast(myRay,out hitInfo,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
+//transform.Rotate(rotLeftVector, rotSpace);
+      int childIndexStart = 1; // todo dikkat center origin alınmıyor
 
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            // var collidersClosestToMainorigin = hitInfo.collider.ClosestPoint(this.transform.position);
-            var collidersClosestToMainorigin = hitInfo.collider.transform.position;
-            
-            
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
 
-            Vector3 crossResult = Vector3.Cross(AC,AB);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            if (crossResult.z < 0.000001f)
-            {
-               
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         myRay.direction = Vector3.left;
-         
-         RaycastHit hitInfo2 = new RaycastHit();
-         
-         hit = Physics.Raycast(myRay,out hitInfo2,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            // var collidersClosestToMainorigin = hitInfo2.collider.ClosestPoint(this.transform.position);
-
-            var collidersClosestToMainorigin = hitInfo2.collider.transform.position;
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AC,AB);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            if (crossResult.z < 0.000001f)
-            {
-               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         myRay.direction = Vector3.right;
-         
-         RaycastHit hitInfo3 = new RaycastHit();
-         Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-         
-         hit = Physics.Raycast(myRay,out hitInfo3,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            //var collidersClosestToMainorigin = hitInfo3.collider.ClosestPoint(this.transform.position);
-            var collidersClosestToMainorigin = hitInfo3.collider.transform.position;
-
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AC,AB);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            if (crossResult.z < 0.000001f)
-            {
-               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          myRay.direction = Vector3.up;
-         
-         RaycastHit hitInfo4 = new RaycastHit();
-         
-         hit = Physics.Raycast(myRay,out hitInfo4,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            // var collidersClosestToMainorigin = hitInfo4.collider.ClosestPoint(this.transform.position);
-            var collidersClosestToMainorigin = hitInfo4.collider.transform.position;
-
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AC,AB);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            
-            
-            if (crossResult.z < 0.000001f)
-            {
-               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          
-      }
+      Quaternion startingRot = transform.rotation;
       
-      transform.Rotate(0, 0, 90, rotSpace);
+      float step = 22.5f;
+
+      for (int iaci = 1; iaci <= 4; iaci++)
+      {
+         transform.Rotate(0,0,step,rotSpace);
+         
+         for (int childIndex = childIndexStart; childIndex < childrenCount; childIndex++)
+         {
+            Collider childBox = ChildrenColliders[childIndex];
+
+         var colls=   Physics.OverlapBox(childBox.bounds.center,new Vector3(0.45f,0.45f,0.45f),childBox.transform.rotation,MovementControlLayerMaskValue);
+         if (colls.Length > 0)
+         {
+            transform.rotation = startingRot;
+         }
+            
+         }     
+      }
+    
+       
+      
    }
 
-   
+   private Vector3 rotRightVector = new Vector3(0,0,-90.0f);
    private void RotateRight()
-   {
-      bool hit;
-      for (int cindex = 0; cindex < childrenCount; cindex++)
-      {
-         Collider c = ChildrenColliders[cindex];
-         
-         //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         myRay.direction = Vector3.down;
-         
-         RaycastHit hitInfo = new RaycastHit();
-         
-         hit = Physics.Raycast(myRay,out hitInfo,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            // var collidersClosestToMainorigin = hitInfo.collider.ClosestPoint(this.transform.position);
-            var collidersClosestToMainorigin = hitInfo.collider.transform.position;
-            
-            
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AB,AC);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            if (crossResult.z < 0.000001f)
-            {
-               
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         myRay.direction = Vector3.left;
-         
-         RaycastHit hitInfo2 = new RaycastHit();
-         
-         hit = Physics.Raycast(myRay,out hitInfo2,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            // var collidersClosestToMainorigin = hitInfo2.collider.ClosestPoint(this.transform.position);
-
-            var collidersClosestToMainorigin = hitInfo2.collider.transform.position;
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AB,AC);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            if (crossResult.z < 0.000001f)
-            {
-               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-         myRay.direction = Vector3.right;
-         
-         RaycastHit hitInfo3 = new RaycastHit();
-         Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-         
-         hit = Physics.Raycast(myRay,out hitInfo3,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            //var collidersClosestToMainorigin = hitInfo3.collider.ClosestPoint(this.transform.position);
-            var collidersClosestToMainorigin = hitInfo3.collider.transform.position;
-
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AB,AC);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            if (crossResult.z < 0.000001f)
-            {
-               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          myRay.direction = Vector3.up;
-         
-         RaycastHit hitInfo4 = new RaycastHit();
-         
-         hit = Physics.Raycast(myRay,out hitInfo4,1.0f,MovementControlLayerMaskValue);
-         
-         if (hit)
-         {
-
-            Vector3 AB = c.transform.position - this.transform.position;
-            
-            // var collidersClosestToMainorigin = hitInfo4.collider.ClosestPoint(this.transform.position);
-            var collidersClosestToMainorigin = hitInfo4.collider.transform.position;
-
-            Vector3 AC = collidersClosestToMainorigin - this.transform.position;
-
-            Vector3 crossResult = Vector3.Cross(AB,AC);
-
-            Debug.DrawLine(this.transform.position,this.transform.position + AB,Color.red,5);
-            Debug.DrawLine(this.transform.position,this.transform.position + AC,Color.red,4);
-            
-            
-            
-            if (crossResult.z < 0.000001f)
-            {
-               Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-               return;   
-            }
-              
-         }
-         
-         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          
-      }
+   {   
+       transform.Rotate(rotRightVector, rotSpace);
       
-      transform.Rotate(0, 0, -90, rotSpace);
+    
    }
    
+   private Vector3 rotForwardVector = new Vector3(90,0,0);
    private void RotateForward()
    {
-      bool hit;
-      for (int cindex = 0; cindex < childrenCount; cindex++)
-      {
-         Collider c = ChildrenColliders[cindex];
-         
-         //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         
-         
-         myRay.direction = Vector3.forward;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-         
-         myRay.direction = Vector3.back;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-
-         myRay.direction = Vector3.up;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-
-         
-         myRay.direction = Vector3.down;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-
-     
-         
-            
-
-         
-      }
       
-      transform.Rotate(90, 0, 0, rotSpace);
+      
+      transform.Rotate(rotForwardVector, rotSpace);
+      
+   
    }
    
-   
+   private Vector3 rotBackVector = new Vector3(-90,0,0);
    private void RotateBack()
    {
-      bool hit;
-      for (int cindex = 0; cindex < childrenCount; cindex++)
-      {
-         Collider c = ChildrenColliders[cindex];
-         
-         //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         
-         
-         myRay.direction = Vector3.back;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-         
-         myRay.direction = Vector3.forward;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-         
-        
-
-         myRay.direction = Vector3.up;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-
-         
-         myRay.direction = Vector3.down;
-         hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
-
-         if (hit)
-         {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
-            return;
-            
-         }
-
-     
-         
-            
-
-         
-      }
-      
-      transform.Rotate(-90, 0, 0, rotSpace);
+   
+    //  transform.Rotate(-90, 0, 0, rotSpace);
+    transform.Rotate(rotBackVector, rotSpace);
+    
    }
+ 
 
+   private Vector3 rotScrewRightVector = new Vector3(0,90.0f,0);
+   public void RotateScrewRight()
+   {
+      transform.Rotate(rotScrewRightVector, rotSpace);
+   }
+   
+   private Vector3 rotScrewLeftVector = new Vector3(0,-90.0f,0);
+   
+   public void RotateScrewLeft()
+   {
+      transform.Rotate(rotScrewLeftVector, rotSpace);
+        
+      
+      
+   }
+   private Quaternion startRotation = new Quaternion();
+   private Quaternion endRotation =new Quaternion();
 
+   
 
    public void Update()
    {
+     
+      
       if (Input.GetKeyDown(KeyCode.LeftArrow))
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
          MoveLeft();
       
       }
       if (Input.GetKeyDown(KeyCode.DownArrow) )
       {
-            
-       MoveDown();
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
+        MoveDown();
       }
         
         
       if (Input.GetKeyDown(KeyCode.UpArrow) )
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
          MoveUp();
       }
         
       if (Input.GetKeyDown(KeyCode.RightArrow)  )
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
          MoveRight();
       }
       
       if (Input.GetKeyDown(KeyCode.L))
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
          transform.Translate(0,0,-1,Space.World);
       
       }
       
       if (Input.GetKeyDown(KeyCode.O))
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
          transform.Translate(0,0,1,Space.World);
       
       }
@@ -634,20 +363,42 @@ public class GivenMover : MonoBehaviour
       if (Input.GetKeyDown(KeyCode.A))
       {
         // transform.Rotate(0, 0, 90, rotSpace);
-        RotateLeft();
+        LastSecureRotPost.Pos = transform.position;
+        LastSecureRotPost.Rot = transform.rotation;
+        RotateLeftByControlEach();
       }
       if (Input.GetKeyDown(KeyCode.D))
       {
-       RotateRight();
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
+         RotateRight();
       }
       if (Input.GetKeyDown(KeyCode.S))
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
          RotateBack();
       }
         
       if (Input.GetKeyDown(KeyCode.W))
       {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
         RotateForward();
+      }
+      
+      if (Input.GetKeyDown(KeyCode.Q))
+      {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
+         RotateScrewLeft();
+      }
+      
+      if (Input.GetKeyDown(KeyCode.E))
+      {
+         LastSecureRotPost.Pos = transform.position;
+         LastSecureRotPost.Rot = transform.rotation;
+         RotateScrewRight();
       }
       
    }
@@ -678,14 +429,5 @@ public class GivenMover : MonoBehaviour
    //    }
    // }
 
-
-   // private void OnTriggerEnter(Collider other)
-   // {
-   //
-   //    //other.transform.root.child => carptiginin kupleri
-   //   HitDirection carptigi = ReturnDirection(other.gameObject, this.gameObject);
-   //   HitDirection buRigidBodysiOlan = ReturnDirection(this.gameObject,other.gameObject);
-   //   canMove = false;
-   //
-   // }
+ 
 }
