@@ -1,50 +1,73 @@
-﻿using System;
-using System.Collections;
+﻿#region
+
+using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+
+#endregion
 
 public class RotationAndPosition
 {
    public Quaternion Rot { get; set; }
    public Vector3 Pos { get; set; }
 }
+
 public class GivenMover : MonoBehaviour
 {
    [CanBeNull] public GameObject[] Cubes;
-
-   [CanBeNull] private Collider[] ChildrenColliders;
-
-   private float waitBeforeMoveTime = 1.0f;
-   private float lastTimeRun = 0.0f;
-   private int childrenCount;
-   private Ray RayForwardMoveControl;
-   private Ray myRay;
    public bool canMove = true;
 
-   private RotationAndPosition LastSecureRotPost { get; set; }
-   
+  
+   [CanBeNull] private Collider[] ChildrenColliders;
+   private int childrenCount;
+   private float lastTimeRun = 0.0f;
    private int MovementControlLayerMaskValue;
+   private Ray sideMovementControlRay;
+   private Ray RayForwardMoveControl;
+   private Space rotSpace;
+   private int RotationControlChildIndexStartValue = 1;
+   
+   private readonly Vector3 rotBackVector = new Vector3(-45.0f, 0, 0);
+   private readonly Vector3 rotStepForwardVector = new Vector3(45.0f, 0, 0);
+   private readonly Vector3 rotStepRightVector = new Vector3(0, 0, -45.0f);
+   private readonly Vector3 rotStepScrewLeftVector = new Vector3(0, -45.0f, 0);
+   private readonly Vector3 rotStepScrewRightVector = new Vector3(0, 45.0f, 0);
+   private readonly Vector3 rotStepLeftVector = new Vector3(0, 0, 45.0f);
+
+   private Action<Vector3,Vector3> RotateMe;
+   
+   private Quaternion startRotation = new Quaternion();
+
+   private float waitBeforeMoveTime = 1.0f;
 
    //private Action drawContsForRotatingRight;
+   public Vector3 LocalRotationCenterPosition;
 
+   private Collider CenterCube;
 
-   public void Awake()
-   {
-      LastSecureRotPost = new RotationAndPosition()
-      {
-         Pos = transform.position,
-         Rot = transform.rotation
-      };
-   }
+   private float StepAngleValue = 45.0f;
+
+   // private Vector3 getRotationAxisAround_Z_Custom_Rotation()
+   // {
+   //    { }
+   //    return (transform.position + LocalRotationCenterPosition + Vector3.forward) - (transform.position + LocalRotationCenterPosition);
+   // }
+
+   private Vector3 RotationCenter;
+   
+   
 
    public void Start()
    {
-      
-      Debug.Log("this.name:"+this.name);
+
+      // var s = GetComponent("GivenMover");
+      // Destroy(s);
+      RotationCenter = transform.position + LocalRotationCenterPosition;
+      Debug.Log("this.name:" + name);
 
       // if (name == "TCube_Parcali")
       // {
@@ -61,25 +84,104 @@ public class GivenMover : MonoBehaviour
       RayForwardMoveControl = new Ray();
       RayForwardMoveControl.direction = Vector3.forward;
       setChildrenColliders(childrenCount);
-      MovementControlLayerMaskValue= LayerMask.GetMask("Default");
-   }
+      MovementControlLayerMaskValue = LayerMask.GetMask("Default");
 
+      if (name == "TCube_Parcali" || name == "LCube_Parcali")
+      {
+         RotateMe = RotateAndAdjust_RotPointAtTranslated;
+      }
+   }
+   
    private void setChildrenColliders(int size)
    {
-     List<Collider> cList = new List<Collider>(size);
-      
+      List<Collider> cList = new List<Collider>(size);
+
       foreach (GameObject cube in Cubes)
       {
-         cList.Add(cube.GetComponent<Collider>());    
+         cList.Add(cube.GetComponent<Collider>());
       }
 
       ChildrenColliders = cList.ToArray();
+
+      CenterCube = ChildrenColliders[0];
    }
-   
-   
-   private Space rotSpace;
-   
-       
+
+   public void Update()
+   {
+      if (Input.GetKeyDown(KeyCode.LeftArrow))
+      {
+         MoveLeft();
+      }
+
+      if (Input.GetKeyDown(KeyCode.DownArrow))
+      {
+         MoveDown();
+      }
+
+
+      if (Input.GetKeyDown(KeyCode.UpArrow))
+      {
+         MoveUp();
+      }
+
+      if (Input.GetKeyDown(KeyCode.RightArrow))
+      {
+         MoveRight();
+      }
+
+      if (Input.GetKeyDown(KeyCode.L))
+      {
+         transform.Translate(0, 0, -1, Space.World);
+      }
+
+      if (Input.GetKeyDown(KeyCode.O))
+      {
+         transform.Translate(0, 0, 1, Space.World);
+      }
+
+      if (Input.GetKeyDown(KeyCode.M))
+      {
+         switchRotSpace();
+      }
+
+      if (Input.GetKeyDown(KeyCode.A))
+      {
+         // transform.Rotate(0, 0, 90, rotSpace);
+
+       //  RotateAndAdjust(rotStepLeftVector);
+         RotateMe(rotStepLeftVector);
+      }
+
+      if (Input.GetKeyDown(KeyCode.D))
+      {
+         //RotateRight();
+         RotateMe(rotStepRightVector);
+      }
+
+      if (Input.GetKeyDown(KeyCode.S))
+      {
+         RotateBack();
+      }
+
+      if (Input.GetKeyDown(KeyCode.W))
+      {
+         RotateForward();
+      }
+
+      if (Input.GetKeyDown(KeyCode.Q))
+      {
+         RotateScrewLeft();
+      }
+
+      if (Input.GetKeyDown(KeyCode.E))
+      {
+         RotateScrewRight();
+      }
+   }
+
+ 
+
+
    private void switchRotSpace()
    {
       if (rotSpace == Space.Self)
@@ -92,13 +194,54 @@ public class GivenMover : MonoBehaviour
       }
    }
 
-   private void SetRotPosToTheLastSecure()
+ 
+   private void RotateAndAdjust_RotPointAtTranslated(Vector3 aroundAxis) //stepRotateVector: defaultnull
    {
-      transform.rotation = LastSecureRotPost.Rot;
-      transform.position = LastSecureRotPost.Pos;
-   }
+      
+      Quaternion startingRot = transform.rotation;
+      
+      Vector3 centerCubePosition = ChildrenColliders[0].transform.position;
+     
+      for (int iaci = 1; iaci <= 2; iaci++)
+      {
+         
+         
+        // transform.Rotate(stepRotateVector, Space.Self);
+        //transform.RotateAround(getRotationAxisAround_Z_Custom_Rotation(),45.0f,Space.World);
+        transform.RotateAround(RotationCenter,aroundAxis, StepAngleValue );
+         
+         for (int childIndex = RotationControlChildIndexStartValue; childIndex < childrenCount; childIndex++)
+         {
+            Collider childBoxCollider = ChildrenColliders[childIndex];
 
-  
+            var colls = Physics.OverlapBox(childBoxCollider.transform.position, new Vector3(0.3f, 0.3f, 0.3f), childBoxCollider.transform.rotation,
+               MovementControlLayerMaskValue);
+              
+            //  Vector3 directionVector = childBoxCollider.transform.position - centerCubePosition;
+              
+            // Debug.DrawLine(centerCubePosition,childBoxCollider.transform.position,Color.red,10);
+            // Debug.DrawRay(centerCubePosition,directionVector,Color.green,5);
+               
+            if (colls.Length>0)
+            {
+                
+               
+               
+               GameObject overlappedBox =Instantiate(childBoxCollider.gameObject,childBoxCollider.transform.position,childBoxCollider.transform.rotation);
+               overlappedBox.GetComponent<BoxCollider>().enabled = false;
+              
+               ////
+               transform.rotation = startingRot;
+               
+               Debug.DrawLine(centerCubePosition,childBoxCollider.transform.position,Color.red,10);
+               
+               return;
+            }
+         }
+      }
+      
+     
+   }
 
    // spawner olarak MainController kullanılacak
    // MainController: given object spawn edecek
@@ -117,7 +260,7 @@ public class GivenMover : MonoBehaviour
          // free fall
          bool isHit = Physics.Raycast(RayForwardMoveControl, 1.0f);
 
-         if (isHit == true) // digerlerini bekleme dön hemen
+         if (isHit) // digerlerini bekleme dön hemen
          {
             Debug.DrawRay(RayForwardMoveControl.origin, RayForwardMoveControl.direction, Color.green, 34444);
             return true;
@@ -129,278 +272,117 @@ public class GivenMover : MonoBehaviour
 
    private void MoveLeft()
    {
-      
       for (int cindex = 0; cindex < childrenCount; cindex++)
       {
          Collider c = ChildrenColliders[cindex];
-         
+
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         myRay.direction = Vector3.left;
-         bool hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
+         sideMovementControlRay.origin = c.transform.position;
+         sideMovementControlRay.direction = Vector3.left;
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
 
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
-            
          }
-         
       }
-      
-      transform.Translate(-1,0,0,Space.World);
+
+      transform.Translate(-1, 0, 0, Space.World);
    }
-   
+
    private void MoveDown()
    {
-      
       for (int cindex = 0; cindex < childrenCount; cindex++)
       {
          Collider c = ChildrenColliders[cindex];
-         
+
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         myRay.direction = Vector3.down;
-         bool hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
+         sideMovementControlRay.origin = c.transform.position;
+         sideMovementControlRay.direction = Vector3.down;
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
 
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
-            
          }
-         
       }
-      
-      transform.Translate(0,-1,0,Space.World);
+
+      transform.Translate(0, -1, 0, Space.World);
    }
-   
+
    private void MoveUp()
    {
-      
       for (int cindex = 0; cindex < childrenCount; cindex++)
       {
          Collider c = ChildrenColliders[cindex];
-         
+
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         myRay.direction = Vector3.up;
-         bool hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
+         sideMovementControlRay.origin = c.transform.position;
+         sideMovementControlRay.direction = Vector3.up;
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
 
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
-            
          }
-         
       }
-      
-      transform.Translate(0,1,0,Space.World);
+
+      transform.Translate(0, 1, 0, Space.World);
    }
-   
+
    private void MoveRight()
    {
-      
       for (int cindex = 0; cindex < childrenCount; cindex++)
       {
          Collider c = ChildrenColliders[cindex];
-         
+
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
-         myRay.origin = c.transform.position;
-         myRay.direction = Vector3.right;
-         bool hit = Physics.Raycast(myRay, 1.0f,MovementControlLayerMaskValue);
+         sideMovementControlRay.origin = c.transform.position;
+         sideMovementControlRay.direction = Vector3.right;
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
 
          if (hit)
          {
-            Debug.DrawRay(myRay.origin, myRay.direction, Color.green, 4);
+            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
-            
          }
-         
       }
-      
-      transform.Translate(1,0,0,Space.World);
+
+      transform.Translate(1, 0, 0, Space.World);
    }
 
-    
    
-   private Vector3 rotLeftVector = new Vector3(0,0,90.0f);
+
+ 
    
-    
-   private void RotateLeftByControlEach()
-   {
-//transform.Rotate(rotLeftVector, rotSpace);
-      int childIndexStart = 1; // todo dikkat center origin alınmıyor
 
-
-      Quaternion startingRot = transform.rotation;
-      
-      float step = 22.5f;
-
-      for (int iaci = 1; iaci <= 4; iaci++)
-      {
-         transform.Rotate(0,0,step,rotSpace);
-         
-         for (int childIndex = childIndexStart; childIndex < childrenCount; childIndex++)
-         {
-            Collider childBox = ChildrenColliders[childIndex];
-
-         var colls=   Physics.OverlapBox(childBox.bounds.center,new Vector3(0.45f,0.45f,0.45f),childBox.transform.rotation,MovementControlLayerMaskValue);
-         if (colls.Length > 0)
-         {
-            transform.rotation = startingRot;
-         }
-            
-         }     
-      }
-    
-       
-      
-   }
-
-   private Vector3 rotRightVector = new Vector3(0,0,-90.0f);
    private void RotateRight()
-   {   
-       transform.Rotate(rotRightVector, rotSpace);
-      
-    
+   {
+      transform.Rotate(rotStepRightVector, rotSpace);
    }
-   
-   private Vector3 rotForwardVector = new Vector3(90,0,0);
+
    private void RotateForward()
    {
-      
-      
-      transform.Rotate(rotForwardVector, rotSpace);
-      
-   
+      transform.Rotate(rotStepForwardVector, rotSpace);
    }
-   
-   private Vector3 rotBackVector = new Vector3(-90,0,0);
+
    private void RotateBack()
    {
-   
-    //  transform.Rotate(-90, 0, 0, rotSpace);
-    transform.Rotate(rotBackVector, rotSpace);
-    
+      //  transform.Rotate(-90, 0, 0, rotSpace);
+      transform.Rotate(rotBackVector, rotSpace);
    }
- 
 
-   private Vector3 rotScrewRightVector = new Vector3(0,90.0f,0);
    public void RotateScrewRight()
    {
-      transform.Rotate(rotScrewRightVector, rotSpace);
+      transform.Rotate(rotStepScrewRightVector, rotSpace);
    }
-   
-   private Vector3 rotScrewLeftVector = new Vector3(0,-90.0f,0);
-   
+
    public void RotateScrewLeft()
    {
-      transform.Rotate(rotScrewLeftVector, rotSpace);
-        
-      
-      
-   }
-   private Quaternion startRotation = new Quaternion();
-   private Quaternion endRotation =new Quaternion();
-
-   
-
-   public void Update()
-   {
-     
-      
-      if (Input.GetKeyDown(KeyCode.LeftArrow))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         MoveLeft();
-      
-      }
-      if (Input.GetKeyDown(KeyCode.DownArrow) )
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-        MoveDown();
-      }
-        
-        
-      if (Input.GetKeyDown(KeyCode.UpArrow) )
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         MoveUp();
-      }
-        
-      if (Input.GetKeyDown(KeyCode.RightArrow)  )
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         MoveRight();
-      }
-      
-      if (Input.GetKeyDown(KeyCode.L))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         transform.Translate(0,0,-1,Space.World);
-      
-      }
-      
-      if (Input.GetKeyDown(KeyCode.O))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         transform.Translate(0,0,1,Space.World);
-      
-      }
-      
-      if (Input.GetKeyDown(KeyCode.M))
-      {
-         switchRotSpace();
-      }
-      if (Input.GetKeyDown(KeyCode.A))
-      {
-        // transform.Rotate(0, 0, 90, rotSpace);
-        LastSecureRotPost.Pos = transform.position;
-        LastSecureRotPost.Rot = transform.rotation;
-        RotateLeftByControlEach();
-      }
-      if (Input.GetKeyDown(KeyCode.D))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         RotateRight();
-      }
-      if (Input.GetKeyDown(KeyCode.S))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         RotateBack();
-      }
-        
-      if (Input.GetKeyDown(KeyCode.W))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-        RotateForward();
-      }
-      
-      if (Input.GetKeyDown(KeyCode.Q))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         RotateScrewLeft();
-      }
-      
-      if (Input.GetKeyDown(KeyCode.E))
-      {
-         LastSecureRotPost.Pos = transform.position;
-         LastSecureRotPost.Rot = transform.rotation;
-         RotateScrewRight();
-      }
-      
+      transform.Rotate(rotStepScrewLeftVector, rotSpace);
    }
 
    // public void Update()
@@ -428,6 +410,4 @@ public class GivenMover : MonoBehaviour
    //       lastTimeRun = now;
    //    }
    // }
-
- 
 }
