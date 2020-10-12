@@ -38,7 +38,7 @@ public class GivenMover : MonoBehaviour
    private readonly Vector3 rotStepScrewRightVector = new Vector3(0, 45.0f, 0);
    private readonly Vector3 rotStepLeftVector = new Vector3(0, 0, 45.0f);
 
-   private Action<Vector3,Vector3> RotateMe;
+ //  private Action<Vector3,Vector3> RotateMe;
    
    private Quaternion startRotation = new Quaternion();
 
@@ -57,28 +57,29 @@ public class GivenMover : MonoBehaviour
    //    return (transform.position + LocalRotationCenterPosition + Vector3.forward) - (transform.position + LocalRotationCenterPosition);
    // }
 
-   private Vector3 RotationCenter;
-   
-   
+   private Vector3 RotationCenter
+   {
+      get
+      {
+         return transform.position + LocalRotationCenterPosition;
+      }
+      set
+      {
+         
+      }
+   }
+
+
 
    public void Start()
    {
-
+      Debug.Log("this.name:" + name);
       // var s = GetComponent("GivenMover");
       // Destroy(s);
       RotationCenter = transform.position + LocalRotationCenterPosition;
-      Debug.Log("this.name:" + name);
+    
 
-      // if (name == "TCube_Parcali")
-      // {
-      //    drawContsForRotatingRight = drawContsFor_T_CubeRotateRight;
-      // }
-      // else if (name == "LCube_Parcali")
-      // {
-      //    drawContsForRotatingRight = drawContsFor_L_CubeRotateRight;
-      // }
-      //
-      //
+      
       rotSpace = Space.World;
       childrenCount = Cubes.Length;
       RayForwardMoveControl = new Ray();
@@ -86,10 +87,7 @@ public class GivenMover : MonoBehaviour
       setChildrenColliders(childrenCount);
       MovementControlLayerMaskValue = LayerMask.GetMask("Default");
 
-      if (name == "TCube_Parcali" || name == "LCube_Parcali")
-      {
-         RotateMe = RotateAndAdjust_RotPointAtTranslated;
-      }
+      
    }
    
    private void setChildrenColliders(int size)
@@ -146,36 +144,33 @@ public class GivenMover : MonoBehaviour
 
       if (Input.GetKeyDown(KeyCode.A))
       {
-         // transform.Rotate(0, 0, 90, rotSpace);
-
-       //  RotateAndAdjust(rotStepLeftVector);
-         RotateMe(rotStepLeftVector);
+       RotateAndAdjust_RotPointAtTranslated(Vector3.forward);
       }
 
       if (Input.GetKeyDown(KeyCode.D))
       {
          //RotateRight();
-         RotateMe(rotStepRightVector);
+         RotateAndAdjust_RotPointAtTranslated(Vector3.back);
       }
-
+      
       if (Input.GetKeyDown(KeyCode.S))
       {
-         RotateBack();
+         RotateAndAdjust_RotPointAtTranslated(Vector3.left);
       }
 
       if (Input.GetKeyDown(KeyCode.W))
       {
-         RotateForward();
+         RotateAndAdjust_RotPointAtTranslated(Vector3.right);
       }
 
       if (Input.GetKeyDown(KeyCode.Q))
       {
-         RotateScrewLeft();
+         RotateAndAdjust_RotPointAtTranslated(Vector3.down);
       }
 
       if (Input.GetKeyDown(KeyCode.E))
       {
-         RotateScrewRight();
+         RotateAndAdjust_RotPointAtTranslated(Vector3.up);
       }
    }
 
@@ -197,17 +192,11 @@ public class GivenMover : MonoBehaviour
  
    private void RotateAndAdjust_RotPointAtTranslated(Vector3 aroundAxis) //stepRotateVector: defaultnull
    {
-      
       Quaternion startingRot = transform.rotation;
       
-      Vector3 centerCubePosition = ChildrenColliders[0].transform.position;
-     
       for (int iaci = 1; iaci <= 2; iaci++)
       {
          
-         
-        // transform.Rotate(stepRotateVector, Space.Self);
-        //transform.RotateAround(getRotationAxisAround_Z_Custom_Rotation(),45.0f,Space.World);
         transform.RotateAround(RotationCenter,aroundAxis, StepAngleValue );
          
          for (int childIndex = RotationControlChildIndexStartValue; childIndex < childrenCount; childIndex++)
@@ -217,24 +206,14 @@ public class GivenMover : MonoBehaviour
             var colls = Physics.OverlapBox(childBoxCollider.transform.position, new Vector3(0.3f, 0.3f, 0.3f), childBoxCollider.transform.rotation,
                MovementControlLayerMaskValue);
               
-            //  Vector3 directionVector = childBoxCollider.transform.position - centerCubePosition;
-              
-            // Debug.DrawLine(centerCubePosition,childBoxCollider.transform.position,Color.red,10);
-            // Debug.DrawRay(centerCubePosition,directionVector,Color.green,5);
-               
             if (colls.Length>0)
             {
-                
+               Debug.DrawLine(CenterCube.transform.position,childBoxCollider.transform.position,Color.red,10);
                
-               
-               GameObject overlappedBox =Instantiate(childBoxCollider.gameObject,childBoxCollider.transform.position,childBoxCollider.transform.rotation);
-               overlappedBox.GetComponent<BoxCollider>().enabled = false;
-              
-               ////
+                 GameObject overlappedBox =Instantiate(childBoxCollider.gameObject,childBoxCollider.transform.position,childBoxCollider.transform.rotation);
+                 overlappedBox.GetComponent<BoxCollider>().enabled = false;
+             
                transform.rotation = startingRot;
-               
-               Debug.DrawLine(centerCubePosition,childBoxCollider.transform.position,Color.red,10);
-               
                return;
             }
          }
@@ -262,7 +241,7 @@ public class GivenMover : MonoBehaviour
 
          if (isHit) // digerlerini bekleme dön hemen
          {
-            Debug.DrawRay(RayForwardMoveControl.origin, RayForwardMoveControl.direction, Color.green, 34444);
+            //Debug.DrawRay(RayForwardMoveControl.origin, RayForwardMoveControl.direction, Color.green, 34444);
             return true;
          }
       }
@@ -283,7 +262,7 @@ public class GivenMover : MonoBehaviour
 
          if (hit)
          {
-            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
+            //Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
          }
       }
@@ -304,7 +283,7 @@ public class GivenMover : MonoBehaviour
 
          if (hit)
          {
-            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
+         //   Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
          }
       }
@@ -325,7 +304,7 @@ public class GivenMover : MonoBehaviour
 
          if (hit)
          {
-            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
+          //  Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
          }
       }
@@ -346,7 +325,7 @@ public class GivenMover : MonoBehaviour
 
          if (hit)
          {
-            Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
+          //  Debug.DrawRay(sideMovementControlRay.origin, sideMovementControlRay.direction, Color.green, 4);
             return;
          }
       }

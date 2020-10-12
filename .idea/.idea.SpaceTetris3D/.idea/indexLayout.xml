@@ -20,6 +20,7 @@
       <Path>Logs</Path>
       <Path>MeshesMatsAll</Path>
       <Path>SpaceTetris3D.git</Path>
+      <Path>Temp</Path>
       <Path>obj</Path>
     </explicitExcludes>
   </component>

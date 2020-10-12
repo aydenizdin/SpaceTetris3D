@@ -6,26 +6,16 @@ using UnityEngine.Serialization;
 
 public class MainController : MonoBehaviour
 {
-    // Start is called before the first frame update
+   // Start is called before the first frame update
 
    public GameObject givenSpawned;
 
-    private GivenMover gMoverScriptPart;
-    
-  
-    private float keyDelay = 0.1f;
-    private float timePassed =0f;
+   private GivenMover gMoverScriptPart;
 
-    private void Start()
-    {
-        
-        gMoverScriptPart = givenSpawned.GetComponent<GivenMover>();
-    }
  
 
-
-   
-
-   
-    }
-
+   private void Start()
+   {
+      gMoverScriptPart = givenSpawned.GetComponent<GivenMover>();
+   }
+}
