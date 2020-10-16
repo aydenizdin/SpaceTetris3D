@@ -44,13 +44,14 @@ public class PlatformDrawer
 
       PlatformLineSegment[] startFrameSegments = ConstructStartFramePositions(dims);
       
-      // Vector3[] leftSideFramePositions = ConstructSideFramesPositions_Left(dims);
+      PlatformLineSegment[] leftSideFramePositions = ConstructSideFramesPositions_Left(dims);
       // Vector3[] rightSideFramePositionsd = ConstructSideFramesPositions_Right(dims);
       // List<Vector3> bottomHorLines = ConstructBottomHorizLines(dims);
       // List<Vector3> bottomVertLines = ConstructBottomVertLines(dims);
 
 
       totalSegments.AddRange(startFrameSegments);
+      totalSegments.AddRange(leftSideFramePositions);
 
       return totalSegments;
       // totalPositions.AddRange(leftSideFramePositions);
@@ -129,22 +130,35 @@ public class PlatformDrawer
    }
 
 
-   private Vector3[] ConstructSideFramesPositions_Left(PlatformDimensions dims)
+   private PlatformLineSegment[] ConstructSideFramesPositions_Left(PlatformDimensions dims)
    {
       float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
       float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
       float derinlikMove = _conf.OneUnit * dims.Depth;
+ 
 
-      Vector3[] SideFrPoss =
+      PlatformLineSegment[] LeftBoundPositions =
       {
-         new Vector3(-yatayMove, dikeyMove, 0),
-         new Vector3(-yatayMove, dikeyMove, derinlikMove),
-         new Vector3(-yatayMove, -dikeyMove, derinlikMove),
-         new Vector3(-yatayMove, -dikeyMove, 0)
-         //  new Vector3(-yatayMove, dikeyMove, 0)
+         new PlatformLineSegment()
+         {
+            Start = new PlatformVertex() {x = -yatayMove, y = dikeyMove, z = 0.0f},
+            End = new PlatformVertex() {x = -yatayMove, y = dikeyMove, z = derinlikMove}
+         },
+         new PlatformLineSegment()
+         {
+            Start = new PlatformVertex() {x = -yatayMove, y = dikeyMove, z = derinlikMove},
+            End = new PlatformVertex() {x = -yatayMove, y = -dikeyMove, z = derinlikMove}
+         },
+         new PlatformLineSegment()
+         {
+            Start = new PlatformVertex() {x = -yatayMove, y = -dikeyMove, z = derinlikMove},
+            End = new PlatformVertex() {x = -yatayMove, y = -dikeyMove, z = 0.0f}
+         }
       };
+      
+      
 
-      return SideFrPoss;
+      return LeftBoundPositions;
    }
 
    private Vector3[] ConstructSideFramesPositions_Right(PlatformDimensions dims)

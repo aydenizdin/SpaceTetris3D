@@ -45,46 +45,41 @@ public class Platform : MonoBehaviour
     
    
 
-   static Material lineMaterial;
+  // static Material lineMaterial;
    
    
    private void CreateLineMaterial()
    {
-       
-       
-       // Unity has a built-in shader that is useful for drawing
-         // simple colored things.
-         Shader shader = Shader.Find("Hidden/Internal-Colored");
-         lineMaterial = new Material(shader);
-         lineMaterial.hideFlags = HideFlags.HideAndDontSave;
-         // Turn on alpha blending
-         lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-         lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-         // Turn backface culling off
-         lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-         // Turn off depth writes
-         lineMaterial.SetInt("_ZWrite", 0);
-      
+
+      // lineMaterial = GetComponent<Renderer>().material;
+      // lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+      // lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
+      //
+      //
+      // lineMaterial.SetPass(0);
+    //   mat.SetPass(0);
    }
 
    // Will be called after all regular rendering is done
    public void OnRenderObject()
    {
-      
+     
       // Apply the line material
-      lineMaterial.SetPass(0);
-
+     // lineMaterial.SetPass(0);
+      
+      //GetComponent<Renderer>().sharedMaterial.SetPass(0);
       GL.PushMatrix();
       // Set transformation matrix for drawing to
       // match our transform
       GL.MultMatrix(transform.localToWorldMatrix);
-
+      
       // Draw lines
       GL.Begin(GL.LINES);
       // for (int segmentIndex = 1; segmentIndex < linestorender.Count; ++segmentIndex)
       foreach (PlatformLineSegment eachSegment in linestorender)
       {
-         GL.Color(Color.magenta);
+         // GL.Color(Color.magenta);
+           
          // One vertex at transform position
          GL.Vertex3(eachSegment.Start.x,eachSegment.Start.y,eachSegment.Start.z);
          // Another vertex at edge of circle
