@@ -45,6 +45,8 @@ public class PlatformDrawer
       PlatformLineSegment[] startFrameSegments = ConstructStartFramePositions(dims);
       
       PlatformLineSegment[] leftSideFramePositions = ConstructSideFramesPositions_Left(dims);
+      PlatformLineSegment[] rightSideFramePositions = ConstructSideFramesPositions_Right(dims);
+      PlatformLineSegment[] bottomPoss = ConstructBottom( dims);
       // Vector3[] rightSideFramePositionsd = ConstructSideFramesPositions_Right(dims);
       // List<Vector3> bottomHorLines = ConstructBottomHorizLines(dims);
       // List<Vector3> bottomVertLines = ConstructBottomVertLines(dims);
@@ -52,6 +54,8 @@ public class PlatformDrawer
 
       totalSegments.AddRange(startFrameSegments);
       totalSegments.AddRange(leftSideFramePositions);
+      totalSegments.AddRange(rightSideFramePositions);
+      totalSegments.AddRange(bottomPoss);
 
       return totalSegments;
       // totalPositions.AddRange(leftSideFramePositions);
@@ -63,8 +67,8 @@ public class PlatformDrawer
    private PlatformLineSegment[] ConstructStartFramePositions(PlatformDimensions dims)
    {
       float unit = _conf.OneUnit;
-      float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
-      float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
+      float yatayMove = unit * dims.Width / 2.0f;
+      float dikeyMove = unit * dims.Height / 2.0f;
 
       PlatformLineSegment[] StartFramePoss = new PlatformLineSegment[4];
 
@@ -129,6 +133,65 @@ public class PlatformDrawer
       return StartFramePoss;
    }
 
+   private PlatformLineSegment[] ConstructBottom( PlatformDimensions dims)
+   {
+      float unit = _conf.OneUnit;
+      float yatayMove = unit * dims.Width / 2.0f;
+      float dikeyMove = unit * dims.Height / 2.0f;
+      float derinlikMove = unit * dims.Depth;
+      
+      PlatformLineSegment[] BottomPoss = new PlatformLineSegment[2];
+
+      PlatformVertex solUstStart = new PlatformVertex()
+      {
+         x = -yatayMove,
+         y = dikeyMove,
+         z = derinlikMove
+      };
+
+      PlatformVertex sagUst = new PlatformVertex()
+      {
+         x = yatayMove,
+         y = dikeyMove,
+         z = derinlikMove
+      };
+
+      PlatformVertex sagAlt = new PlatformVertex()
+      {
+         x = yatayMove,
+         y = -dikeyMove,
+         z = derinlikMove
+      };
+
+      PlatformVertex solAlt = new PlatformVertex()
+      {
+         x = -yatayMove,
+         y = -dikeyMove,
+         z = derinlikMove
+      };
+
+      PlatformLineSegment ust = new PlatformLineSegment()
+      {
+         Start = solUstStart,
+         End = sagUst
+      };
+
+     
+
+      PlatformLineSegment alt = new PlatformLineSegment()
+      {
+         Start = sagAlt,
+         End = solAlt
+      };
+
+    
+
+      BottomPoss[0] = ust;
+      BottomPoss[1] = alt;
+      
+
+      return BottomPoss;
+   }
 
    private PlatformLineSegment[] ConstructSideFramesPositions_Left(PlatformDimensions dims)
    {
@@ -161,73 +224,38 @@ public class PlatformDrawer
       return LeftBoundPositions;
    }
 
-   private Vector3[] ConstructSideFramesPositions_Right(PlatformDimensions dims)
+   private PlatformLineSegment[] ConstructSideFramesPositions_Right(PlatformDimensions dims)
    {
       float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
       float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
       float derinlikMove = _conf.OneUnit * dims.Depth;
+ 
 
-      Vector3[] SideFrPoss =
+      PlatformLineSegment[] RightBoundsPoss =
       {
-         new Vector3(yatayMove, -dikeyMove, 0),
-         new Vector3(yatayMove, -dikeyMove, derinlikMove),
-         new Vector3(yatayMove, dikeyMove, derinlikMove),
-         new Vector3(yatayMove, dikeyMove, 0)
+         new PlatformLineSegment()
+         {
+            Start = new PlatformVertex() {x = yatayMove, y = dikeyMove, z = 0.0f},
+            End = new PlatformVertex() {x = yatayMove, y = dikeyMove, z = derinlikMove}
+         },
+         new PlatformLineSegment()
+         {
+            Start = new PlatformVertex() {x = yatayMove, y = dikeyMove, z = derinlikMove},
+            End = new PlatformVertex() {x = yatayMove, y = -dikeyMove, z = derinlikMove}
+         },
+         new PlatformLineSegment()
+         {
+            Start = new PlatformVertex() {x = yatayMove, y = -dikeyMove, z = derinlikMove},
+            End = new PlatformVertex() {x = yatayMove, y = -dikeyMove, z = 0.0f}
+         }
       };
+      
+      
 
-      return SideFrPoss;
+      return RightBoundsPoss;
    }
 
-   private List<Vector3> ConstructBottomHorizLines(PlatformDimensions dims)
-   {
-      float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
-      float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
-      float derinlikMove = _conf.OneUnit * dims.Depth;
+ 
 
-
-      List<Vector3> bottomPos = new List<Vector3>();
-      bottomPos.Add(new Vector3(-yatayMove, dikeyMove, 0));
-      bottomPos.Add(new Vector3(-yatayMove, dikeyMove, derinlikMove));
-
-      for (int i = 0; i <= dims.Height; i++)
-      {
-         Vector3 soldakiPos = new Vector3(-yatayMove, dikeyMove - (_conf.OneUnit * i), derinlikMove);
-         Vector3 sagdakiPos = new Vector3(yatayMove, dikeyMove - (_conf.OneUnit * i), derinlikMove);
-
-         bottomPos.Add(soldakiPos);
-
-         bottomPos.Add(sagdakiPos);
-
-         bottomPos.Add(soldakiPos);
-      }
-
-
-      return bottomPos;
-   }
-
-
-   private List<Vector3> ConstructBottomVertLines(PlatformDimensions dims)
-   {
-      float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
-      float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
-      float derinlikMove = _conf.OneUnit * dims.Depth;
-
-
-      List<Vector3> bottomPos = new List<Vector3>();
-
-      for (int i = 1; i < dims.Height; i++)
-      {
-         Vector3 yuk = new Vector3(-yatayMove + (_conf.OneUnit * i), dikeyMove, derinlikMove);
-         Vector3 asag = new Vector3(-yatayMove + (_conf.OneUnit * i), -dikeyMove, derinlikMove);
-
-         bottomPos.Add(yuk);
-
-         bottomPos.Add(asag);
-
-         bottomPos.Add(yuk);
-      }
-
-
-      return bottomPos;
-   }
+ 
 }
