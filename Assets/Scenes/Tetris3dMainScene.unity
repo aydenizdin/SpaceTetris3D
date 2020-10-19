@@ -789,9 +789,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlatDims:
-    Width: 5
-    Height: 5
-    Depth: 15
+    Width: 6
+    Height: 8
+    Depth: 12
   t3dConfiguration: {fileID: 492699476}
 --- !u!1 &1269578896
 GameObject:

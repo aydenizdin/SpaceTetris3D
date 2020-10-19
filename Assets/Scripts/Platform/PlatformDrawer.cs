@@ -29,8 +29,6 @@ public class PlatformDrawer
       _conf = conf;
    }
 
-  
-
 
    public List<PlatformLineSegment> ConstructPlatformVertices(PlatformDimensions dims)
    {
@@ -43,10 +41,11 @@ public class PlatformDrawer
       List<PlatformLineSegment> totalSegments = new List<PlatformLineSegment>(0);
 
       PlatformLineSegment[] startFrameSegments = ConstructStartFramePositions(dims);
-      
+
       PlatformLineSegment[] leftSideFramePositions = ConstructSideFramesPositions_Left(dims);
       PlatformLineSegment[] rightSideFramePositions = ConstructSideFramesPositions_Right(dims);
-      PlatformLineSegment[] bottomPoss = ConstructBottom( dims);
+      PlatformLineSegment[] bottomFrame = ConstructBottomFrame(dims);
+      PlatformLineSegment[] bottomHorLines = ConstructBottomGrid(dims);
       // Vector3[] rightSideFramePositionsd = ConstructSideFramesPositions_Right(dims);
       // List<Vector3> bottomHorLines = ConstructBottomHorizLines(dims);
       // List<Vector3> bottomVertLines = ConstructBottomVertLines(dims);
@@ -55,7 +54,8 @@ public class PlatformDrawer
       totalSegments.AddRange(startFrameSegments);
       totalSegments.AddRange(leftSideFramePositions);
       totalSegments.AddRange(rightSideFramePositions);
-      totalSegments.AddRange(bottomPoss);
+      totalSegments.AddRange(bottomFrame);
+      totalSegments.AddRange(bottomHorLines);
 
       return totalSegments;
       // totalPositions.AddRange(leftSideFramePositions);
@@ -133,13 +133,86 @@ public class PlatformDrawer
       return StartFramePoss;
    }
 
-   private PlatformLineSegment[] ConstructBottom( PlatformDimensions dims)
+   private PlatformLineSegment[] ConstructBottomGrid(PlatformDimensions dims)
+   {
+      float unit = _conf.OneUnit;
+      float derinlik = unit * dims.Depth;
+      int howManyHorizontalLine = ((int) dims.Height / (int) unit) - 1;
+      int howManyVerticalLine = ((int) dims.Width / (int) unit) - 1;
+      
+      PlatformLineSegment[] BottomTotalGrid = new PlatformLineSegment[howManyHorizontalLine+howManyVerticalLine];
+      int totalIndex = 0;
+      
+      // taban frame'in sol ustu
+      float solUstX = -(unit * dims.Width / 2.0f);
+      float solUstY = (unit * dims.Height / 2.0f);
+
+  
+      
+      // yatay segmentler
+      float endX_H = solUstX + (unit * dims.Width);
+      for (int horIndex = 1; horIndex <= howManyHorizontalLine; horIndex++)
+      {
+         float startY = solUstY - (horIndex * unit);
+       
+
+         PlatformLineSegment seg = new PlatformLineSegment()
+         {
+            Start = new PlatformVertex()
+            {
+               x = solUstX,
+               y = startY,
+               z = derinlik
+            },
+            End = new PlatformVertex()
+            {
+               x = endX_H,
+               y = startY,
+               z = derinlik
+            }
+         };
+         BottomTotalGrid[totalIndex] = seg;
+         totalIndex++;
+      }
+      //dikey segmentler
+
+      float endY_V = solUstY - (unit * dims.Height);
+
+      for (int vertIndex = 1; vertIndex <= howManyVerticalLine; vertIndex++)
+      {
+         float startX = solUstX + (vertIndex * unit);
+
+         PlatformLineSegment seg = new PlatformLineSegment()
+         {
+            Start = new PlatformVertex()
+            {
+               x = startX,
+               y = solUstY,
+               z = derinlik
+            },
+            End = new PlatformVertex()
+            {
+               x = startX,
+               y = endY_V,
+               z = derinlik
+            }
+         };
+         BottomTotalGrid[totalIndex] = seg;
+         totalIndex++;
+      }
+
+
+      return BottomTotalGrid;
+
+   }
+
+   private PlatformLineSegment[] ConstructBottomFrame(PlatformDimensions dims)
    {
       float unit = _conf.OneUnit;
       float yatayMove = unit * dims.Width / 2.0f;
       float dikeyMove = unit * dims.Height / 2.0f;
       float derinlikMove = unit * dims.Depth;
-      
+
       PlatformLineSegment[] BottomPoss = new PlatformLineSegment[2];
 
       PlatformVertex solUstStart = new PlatformVertex()
@@ -176,7 +249,6 @@ public class PlatformDrawer
          End = sagUst
       };
 
-     
 
       PlatformLineSegment alt = new PlatformLineSegment()
       {
@@ -184,11 +256,10 @@ public class PlatformDrawer
          End = solAlt
       };
 
-    
 
       BottomPoss[0] = ust;
       BottomPoss[1] = alt;
-      
+
 
       return BottomPoss;
    }
@@ -198,7 +269,7 @@ public class PlatformDrawer
       float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
       float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
       float derinlikMove = _conf.OneUnit * dims.Depth;
- 
+
 
       PlatformLineSegment[] LeftBoundPositions =
       {
@@ -218,8 +289,7 @@ public class PlatformDrawer
             End = new PlatformVertex() {x = -yatayMove, y = -dikeyMove, z = 0.0f}
          }
       };
-      
-      
+
 
       return LeftBoundPositions;
    }
@@ -229,7 +299,7 @@ public class PlatformDrawer
       float yatayMove = _conf.OneUnit * dims.Width / 2.0f;
       float dikeyMove = _conf.OneUnit * dims.Height / 2.0f;
       float derinlikMove = _conf.OneUnit * dims.Depth;
- 
+
 
       PlatformLineSegment[] RightBoundsPoss =
       {
@@ -249,13 +319,8 @@ public class PlatformDrawer
             End = new PlatformVertex() {x = yatayMove, y = -dikeyMove, z = 0.0f}
          }
       };
-      
-      
+
 
       return RightBoundsPoss;
    }
-
- 
-
- 
 }
