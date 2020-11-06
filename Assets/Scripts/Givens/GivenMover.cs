@@ -25,7 +25,7 @@ public class GivenMover : MonoBehaviour
    [CanBeNull] private Collider[] ChildrenColliders;
    private int childrenCount;
    private float lastTimeRun = 0.0f;
-   private int MovementControlLayerMaskValue;
+   private int DefaultLayerMask;
    private Ray sideMovementControlRay;
    private Ray RayForwardMoveControl;
    private Space rotSpace;
@@ -85,7 +85,7 @@ public class GivenMover : MonoBehaviour
       RayForwardMoveControl = new Ray();
       RayForwardMoveControl.direction = Vector3.forward;
       setChildrenColliders(childrenCount);
-      MovementControlLayerMaskValue = LayerMask.GetMask("Default");
+      DefaultLayerMask = LayerMask.GetMask("Default");
 
       
    }
@@ -103,9 +103,57 @@ public class GivenMover : MonoBehaviour
 
       CenterCube = ChildrenColliders[0];
    }
+   
+   
+   private bool ShouldStop()
+   {
+      for (int cindex = 0; cindex < childrenCount; cindex++)
+      {
+         GameObject childBoxEach = Cubes[cindex];
+
+         RayForwardMoveControl.origin = Cubes[cindex].transform.position;
+
+         // free fall
+         bool isHit = Physics.Raycast(RayForwardMoveControl, 1.0f,DefaultLayerMask);
+
+         if (isHit) // digerlerini bekleme dön hemen
+         {
+            //Debug.DrawRay(RayForwardMoveControl.origin, RayForwardMoveControl.direction, Color.green, 34444);
+            return true;
+         }
+      }
+
+      return false;
+   }
+
 
    public void Update()
    {
+      if (canMove == false)
+      {
+         return;
+      }
+   
+   
+      // release object, testing todo delete
+   
+   
+      float now = Time.time;
+      float timeDif = now - lastTimeRun;
+      if (timeDif >= waitBeforeMoveTime)
+      {
+         if (ShouldStop())
+         {
+            canMove = false;
+            return;
+         }
+   
+         transform.Translate(0, 0, 1, Space.World);
+         lastTimeRun = now;
+      }
+      
+      
+      
       if (Input.GetKeyDown(KeyCode.LeftArrow))
       {
          MoveLeft();
@@ -204,7 +252,7 @@ public class GivenMover : MonoBehaviour
             Collider childBoxCollider = ChildrenColliders[childIndex];
 
             var colls = Physics.OverlapBox(childBoxCollider.transform.position, new Vector3(0.3f, 0.3f, 0.3f), childBoxCollider.transform.rotation,
-               MovementControlLayerMaskValue);
+               DefaultLayerMask);
               
             if (colls.Length>0)
             {
@@ -228,26 +276,6 @@ public class GivenMover : MonoBehaviour
    // sağa sola tuşlarını bu dinleyecek
    // moveleft moveright henüz yapılmadı, onlarda da raycast kontrol yapılabilir (trigger çözüm olmazsa)
 
-   private bool ShouldStop()
-   {
-      for (int cindex = 0; cindex < childrenCount; cindex++)
-      {
-         GameObject childBoxEach = Cubes[cindex];
-
-         RayForwardMoveControl.origin = Cubes[cindex].transform.position;
-
-         // free fall
-         bool isHit = Physics.Raycast(RayForwardMoveControl, 1.0f);
-
-         if (isHit) // digerlerini bekleme dön hemen
-         {
-            //Debug.DrawRay(RayForwardMoveControl.origin, RayForwardMoveControl.direction, Color.green, 34444);
-            return true;
-         }
-      }
-
-      return false;
-   }
 
    private void MoveLeft()
    {
@@ -258,7 +286,7 @@ public class GivenMover : MonoBehaviour
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
          sideMovementControlRay.origin = c.transform.position;
          sideMovementControlRay.direction = Vector3.left;
-         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, DefaultLayerMask);
 
          if (hit)
          {
@@ -279,7 +307,7 @@ public class GivenMover : MonoBehaviour
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
          sideMovementControlRay.origin = c.transform.position;
          sideMovementControlRay.direction = Vector3.down;
-         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, DefaultLayerMask);
 
          if (hit)
          {
@@ -300,7 +328,7 @@ public class GivenMover : MonoBehaviour
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
          sideMovementControlRay.origin = c.transform.position;
          sideMovementControlRay.direction = Vector3.up;
-         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, DefaultLayerMask);
 
          if (hit)
          {
@@ -321,7 +349,7 @@ public class GivenMover : MonoBehaviour
          //c.transform.RotateAround(this.transform.position,Vector3.forward,-45.0f);
          sideMovementControlRay.origin = c.transform.position;
          sideMovementControlRay.direction = Vector3.right;
-         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, MovementControlLayerMaskValue);
+         bool hit = Physics.Raycast(sideMovementControlRay, 1.0f, DefaultLayerMask);
 
          if (hit)
          {
@@ -364,29 +392,5 @@ public class GivenMover : MonoBehaviour
       transform.Rotate(rotStepScrewLeftVector, rotSpace);
    }
 
-   // public void Update()
-   // {
-   //    if (canMove == false)
-   //    {
-   //       return;
-   //    }
-   //
-   //
-   //    // release object, testing todo delete
-   //
-   //
-   //    float now = Time.time;
-   //    float timeDif = now - lastTimeRun;
-   //    if (timeDif >= waitBeforeMoveTime)
-   //    {
-   //       if (ShouldStop())
-   //       {
-   //          canMove = false;
-   //          return;
-   //       }
-   //
-   //       transform.Translate(0, 0, 1, Space.World);
-   //       lastTimeRun = now;
-   //    }
-   // }
+   
 }
