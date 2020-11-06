@@ -42,7 +42,8 @@ public class GivenMover : MonoBehaviour
    
    private Quaternion startRotation = new Quaternion();
 
-   private float waitBeforeMoveTime = 1.0f;
+   private float waitBeforeMoveTime_Default = 1.0f;
+   private float waitBeforeMoveTime_SendGiven = 0.025f;
 
    //private Action drawContsForRotatingRight;
    public Vector3 LocalRotationCenterPosition;
@@ -140,7 +141,8 @@ public class GivenMover : MonoBehaviour
    
       float now = Time.time;
       float timeDif = now - lastTimeRun;
-      if (timeDif >= waitBeforeMoveTime)
+      
+      if (timeDif >= waitBeforeMoveTime_Default)
       {
          if (ShouldStop())
          {
@@ -153,6 +155,26 @@ public class GivenMover : MonoBehaviour
       }
       
       
+      
+      
+      if (timeDif >= waitBeforeMoveTime_SendGiven)
+      {
+         if (Input.GetKey(KeyCode.Space))
+         {
+            //waitBeforeMoveTime_SendGiven
+         
+            if (ShouldStop())
+            {
+               canMove = false;
+               return;
+            }
+   
+            transform.Translate(0, 0, 1, Space.World);
+            lastTimeRun = now;
+         }
+      }
+
+    
       
       if (Input.GetKeyDown(KeyCode.LeftArrow))
       {
